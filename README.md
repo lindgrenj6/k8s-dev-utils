@@ -56,3 +56,45 @@ It requires 2 gems, install them with `gem install filewatcher kubeclient`
 Then run it like so:
 `SRC=/path/to/catalog-api DEST=/opt/catalog-api NAMESPACE=my-namespace POD=catalog ruby ./dev_kube.rb`
 This copies the files from your local catalog-api into the remote pod, and since it is running in development it will hot-reload (unless it is an initializer of course)
+
+## Bonus: HTTPie Usage
+
+I use [HTTPie](https://httpie.org/) for api development personally as it does a lot more fancy things than curl and has a nice syntax. Basic usage docs are at the link, but here is how I use it
+
+----
+
+First, set up your environment: `. .envfile`, this sets up a bunch of great environment variables for further usage. 
+
+#### Querying the CI/QA environments
+
+Here is an example of just requesting a resource:  
+`http -a $auth $ci/portfolios`  
+`http -a $auth $qa/portfolio_items/1234`  
+
+How to POST some JSON:  
+`http -a $auth $ci/portfolios name="my portfolio"`  
+This posts a json document like this: `{"name":"my portfolio"}`, you can string as many values with `key=value` as you like. When adding params like this it implies `http post -a $auth $api/...`, but you can leave it out since it is automatic.  
+
+PATCH isn't much different:  
+`http patch -a $auth $ci/portfolios/123 name="my new portfolio"`  
+
+#### Querying your local environment
+It is much the same, except you can use a couple shortcuts to make your life easier.   
+The main ones being `$api` to represent your local path, and `$rhid` to tack a x-rh-identity header onto your request:  
+`http $api/portfolios $rhid`  
+`http $api/portfolios name=jeff $rhid` - the order of params does not matter.  
+
+#### Querying other services
+Using topology/sources is easy with the provided environment variables:  
+`http -a $auth $topo/service_offerings`  
+`http -a $auth $approval/requests`  
+ 
+### Using jq to process results
+[jq](https://stedolan.github.io/jq/) is an extremely powerful CLI json processor, I use it all the time to get results from the various API results.  
+
+For example, to get the id's from all the service offerings from topo:  
+`http -a $auth $topo/service_offerings | jq '.data | .[].id'`  
+This can be used for any field where `id` is.  
+
+To get a field off of a show request:  
+`http -a $auth $topo/service_offerings/1234 | jq .name` - prints the name.  
