@@ -32,6 +32,7 @@ end
 
 spinner { sleep rand(1..4) }
 puts "creating buildconfig for #{opts[:repo]}##{opts[:branch]}"
-`oc new-build #{opts[:repo]}##{opts[:branch]}`
+`oc import-image --confirm quay.io/jlindgren/catalog-api-base`
+`cat Dockerfile.dev | oc new-build #{opts[:repo]}##{opts[:branch]} --dockerfile -`
 `oc patch bc/catalog-api --patch "$(cat configs/bc_patch.json)"`
 `oc cancel-build bc/catalog-api && oc start-build bc/catalog-api`
