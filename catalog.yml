@@ -70,6 +70,14 @@ spec:
           value: development
         - name: DATABASE_URL
           value: postgres://root:toor@postgresql:5432/catalog_development
+        - name: DATABASE_USER
+          value: root
+        - name: DATABASE_PASSWORD
+          value: toor
+        - name: DATABASE_HOST
+          value: postgresql
+        - name: DATABASE_PORT
+          value: "5432"
         - name: APP_NAME
           value: catalog
         - name: PATH_PREFIX
